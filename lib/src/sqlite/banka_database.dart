@@ -16,26 +16,23 @@ class BankaDatabase {
     return _database!;
   }
 
-  Future<List<BankaTransaction>> transactions() async {
+  Future<List<BankaTransaction>> transactions({String? type}) async {
     final db = await database;
-    final List<Map<String, Object?>> transactionMaps =
-        await db.query('transactions');
+    final List<Map<String, dynamic>> transactionMaps = type != null
+        ? await db.query(
+            'transactions',
+            where: 'type = ?',
+            whereArgs: [type],
+          )
+        : await db.query('transactions');
 
-    return [
-      for (final {
-            'id': id as int,
-            'type': type as String,
-            'category': category as String,
-            'paymenDate': paymentDate as int,
-            'amount': ammount as int,
-          } in transactionMaps)
-        BankaTransaction(
-            id: id,
-            type: type,
-            category: category,
-            paymentDate: paymentDate,
-            amount: ammount),
-    ];
+    return transactionMaps.map((map) => BankaTransaction(
+      id: map['id'] as int,
+      type: map['type'] as String,
+      category: map['category'] as String,
+      paymentDate: map['paymentDate'] as int,
+      amount: map['amount'] as int,
+    )).toList();
   }
 
   Future<void> insertTransaction(BankaTransaction transaction) async {
@@ -47,7 +44,7 @@ class BankaDatabase {
   Future<void> updateDog(BankaTransaction transaction) async {
     final db = await database;
     await db.update(
-      'dogs',
+      'transactions',
       transaction.toMap(),
       where: 'id = ?',
       whereArgs: [transaction.id],
@@ -65,20 +62,17 @@ class BankaDatabase {
 
   Future<Database> _initDatabase() async {
     String path = join(await getDatabasesPath(), databaseName);
-    bool dbExists = await databaseExists(path);
     return await openDatabase(
       path,
       onCreate: (db, version) {
-        if (!dbExists) {
-          return db.execute(
-            'CREATE TABLE IF NOT EXISTS transactions('
-            'id INTEGER PRIMARY KEY AUTOINCREMENT, '
-            'type TEXT,'
-            'category TEXT, '
-            'paymentDate INTEGER, '
-            'amount INTEGER)',
-          );
-        }
+        return db.execute(
+          'CREATE TABLE IF NOT EXISTS transactions('
+          'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+          'type TEXT,'
+          'category TEXT, '
+          'paymentDate INTEGER, '
+          'amount INTEGER)',
+        );
       },
       version: 1,
     );

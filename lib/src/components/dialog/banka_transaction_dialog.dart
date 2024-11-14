@@ -129,27 +129,49 @@ class _BankaTransactionDialog extends State<BankaTransactionDialog> {
         TextButton(
           onPressed: _isFormValid
               ? () async {
-                  int timestamp = DateTime.parse(_dateController.text)
-                          .millisecondsSinceEpoch ~/
-                      1000;
-                  int amount = int.tryParse(_amountController.text) ?? 0;
-                  final db = await BankaDatabase.instance.database;
-                  await db.insert('transactions', {
-                    'type': widget.typeTransaction,
-                    'category': dropdownValue,
-                    'paymentDate': timestamp,
-                    'amount': amount,
-                  });
-                  // ignore: use_build_context_synchronously
-                  Navigator.of(context).pop();
-                  // ignore: use_build_context_synchronously
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Center(
-                        child: Text('Transaction added successfully'),
+                  try {
+                    int timestamp = DateTime.parse(_dateController.text)
+                            .millisecondsSinceEpoch ~/
+                        1000;
+                    int amount = int.tryParse(_amountController.text) ?? 0;
+                    final db = await BankaDatabase.instance.database;
+                    await db.insert('transactions', {
+                      'type': widget.typeTransaction,
+                      'category': dropdownValue,
+                      'paymentDate': timestamp,
+                      'amount': amount,
+                    });
+                    
+                    Navigator.of(context).pop(true);
+                    
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Center(
+                          child: Text(
+                            'Transaction added successfully',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                        backgroundColor: Colors.green,
+                        duration: const Duration(seconds: 2),
                       ),
-                    ),
-                  );
+                    );
+                  } catch (e) {
+                    Navigator.of(context).pop(false);
+                    
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Center(
+                          child: Text(
+                            'Failed to add transaction',
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ),
+                        backgroundColor: Colors.red,
+                        duration: const Duration(seconds: 3),
+                      ),
+                    );
+                  }
                 }
               : null,
           child: const Text('Add'),

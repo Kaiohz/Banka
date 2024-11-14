@@ -5,7 +5,7 @@ class BankaTransaction {
   final int paymentDate;
   final int amount;
 
-  const BankaTransaction({
+  BankaTransaction({
     required this.id,
     required this.type,
     required this.category,
@@ -13,13 +13,13 @@ class BankaTransaction {
     required this.amount,
   });
 
-  Map<String, Object?> toMap() {
+  Map<String, dynamic> toMap() {
     return {
       'id': id,
       'type': type,
       'category': category,
       'paymentDate': paymentDate,
-      'amount': amount
+      'amount': amount,
     };
   }
 

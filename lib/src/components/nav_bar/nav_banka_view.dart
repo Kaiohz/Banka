@@ -1,4 +1,6 @@
-import 'package:banka/src/constants/utils.dart';
+import 'package:flutter/material.dart';
+import 'package:banka/src/components/stats/stats.dart';
+import 'package:banka/src/components/transactions/transactions.dart';
 import 'package:flutter/material.dart';
 
 /// Flutter code sample for [NavigationBar].
@@ -12,6 +14,16 @@ class NavigationBanka extends StatefulWidget {
 
 class _NavigationBankaState extends State<NavigationBanka> {
   int currentPageIndex = 0;
+
+  final pages = <Widget>[
+  const TransactionsPage(
+      icon: Icon(Icons.receipt_long), typeTransaction: 'Bills'),
+  const TransactionsPage(
+    icon: Icon(Icons.payments),
+    typeTransaction: 'Expenses',
+  ),
+  const StatsPage(),
+];
 
   @override
   Widget build(BuildContext context) {
