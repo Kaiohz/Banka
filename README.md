@@ -1,30 +1,18 @@
-# banka
+# Banka
 
-A new Flutter project.
+Une application mobile de gestion de finances personnelles développée avec Flutter.
 
-## Getting Started
+## Fonctionnalités
 
-This project is a starting point for a Flutter application that follows the
-[simple app state management
-tutorial](https://flutter.dev/docs/development/data-and-backend/state-mgmt/simple).
+- 📊 Suivi des dépenses et revenus
+- 💰 Gestion des transactions avec catégorisation
+- 📈 Statistiques et visualisation des données
+- 💾 Stockage local avec SQLite
+- 📱 Interface utilisateur intuitive et responsive
 
-For help getting started with Flutter development, view the
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Prérequis
 
-## Assets
-
-The `assets` directory houses images, fonts, and any other files you want to
-include with your application.
-
-The `assets/images` directory contains [resolution-aware
-images](https://flutter.dev/docs/development/ui/assets-and-images#resolution-aware).
-
-## Localization
-
-This project generates localized messages based on arb files found in
-the `lib/src/localization` directory.
-
-To support additional languages, please visit the tutorial on
-[Internationalizing Flutter
-apps](https://flutter.dev/docs/development/accessibility-and-localization/internationalization)
+- Flutter SDK (version 3.0.0 ou supérieure)
+- Dart SDK (version 2.17.0 ou supérieure)
+- Android Studio / VS Code
+- Git
