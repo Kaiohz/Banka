@@ -1,22 +1,20 @@
 import 'package:banka/src/components/dialog/banka_transaction_dialog.dart';
 import 'package:banka/src/sqlite/model/transaction.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:banka/src/sqlite/banka_database.dart';
 
-class TransactionsPage extends StatefulWidget {
+class ExpensesPage extends StatefulWidget {
   final Icon icon;
   final String typeTransaction;
-  const TransactionsPage(
+  const ExpensesPage(
       {super.key, required this.icon, required this.typeTransaction});
 
   @override
-  _TransactionsPageState createState() => _TransactionsPageState();
+  ExpensesPageState createState() => ExpensesPageState();
 }
 
-class _TransactionsPageState extends State<TransactionsPage> {
+class ExpensesPageState extends State<ExpensesPage> {
   late Future<List<BankaTransaction>> _transactionsFuture;
-  final TextEditingController _salaryController = TextEditingController();
   double _totalTransactions = 0;
 
   @override
@@ -25,81 +23,21 @@ class _TransactionsPageState extends State<TransactionsPage> {
     _loadTransactions();
   }
 
-  @override
-  void dispose() {
-    _salaryController.dispose();
-    super.dispose();
-  }
-
   void _loadTransactions() {
     setState(() {
-      _transactionsFuture = BankaDatabase.instance.transactions(type: widget.typeTransaction);
+      _transactionsFuture =
+          BankaDatabase.instance.transactions(type: widget.typeTransaction);
+      _transactionsFuture.then((transaction) {
+        _updateTotal(transaction);
+      });
     });
   }
 
-  Widget _buildSalaryInput() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: TextField(
-        controller: _salaryController,
-        keyboardType: TextInputType.number,
-        inputFormatters: <TextInputFormatter>[
-          FilteringTextInputFormatter.digitsOnly,
-        ],
-        decoration: InputDecoration(
-          labelText: 'Monthly Salary',
-          hintText: 'Enter your monthly salary',
-          prefixIcon: const Icon(Icons.euro),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-          suffixText: '€',
-        ),
-        onChanged: (value) {
-          setState(() {});
-        },
-      ),
-    );
-  }
-
-  Widget _buildRemainingAmount() {
-    double salary = double.tryParse(_salaryController.text) ?? 0;
-    double remaining = salary - _totalTransactions;
-    
-    return Padding(
-      padding: const EdgeInsets.only(
-        left: 16.0,
-        right: 16.0,
-        top: 16.0,
-        bottom: 80.0,
-      ),
-      child: Card(
-        elevation: 4,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Remaining:',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                '${remaining.toStringAsFixed(2)} €',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: remaining >= 0 ? Colors.green : Colors.red,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+  void _updateTotal(List<BankaTransaction> transactions) {
+    setState(() {
+      _totalTransactions =
+          transactions.fold(0, (sum, transaction) => sum + transaction.amount);
+    });
   }
 
   Widget _buildTotalAmount() {
@@ -144,8 +82,6 @@ class _TransactionsPageState extends State<TransactionsPage> {
     return Scaffold(
       body: Column(
         children: [
-          if (widget.typeTransaction == 'Bills') _buildSalaryInput(),
-          
           Expanded(
             child: FutureBuilder<List<BankaTransaction>>(
               future: _transactionsFuture,
@@ -159,12 +95,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                     child: Text('No transactions yet'),
                   );
                 } else {
-                  // Calculer le total des transactions
-                  _totalTransactions = snapshot.data!.fold(
-                    0, 
-                    (sum, transaction) => sum + transaction.amount
-                  );
-
+                  
                   return ListView.builder(
                     itemCount: snapshot.data!.length,
                     itemBuilder: (context, index) {
@@ -201,12 +132,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
               },
             ),
           ),
-          
-          // Afficher soit le remaining pour Bills, soit le total pour Expenses
-          if (widget.typeTransaction == 'Bills')
-            _buildRemainingAmount()
-          else if (widget.typeTransaction == 'Expenses')
-            _buildTotalAmount(),
+          _buildTotalAmount(),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -218,7 +144,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                   typeTransaction: widget.typeTransaction);
             },
           );
-          
+
           if (result == true) {
             _loadTransactions();
           }
